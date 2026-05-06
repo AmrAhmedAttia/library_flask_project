@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Library System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="navbar">
+        <h2>Library</h2>
+
+        <div class="links">
+            <a href="#">Home</a>
+            <a href="#books">Books</a>
+            <a href="#members">Members</a>
+            <a href="#borrow">Borrow</a>
+        </div>
+    </div>
+
+    <div class="header">
+        <h1>Library System</h1>
+        <p>Manage books, members, and borrowing records</p>
+    </div>
+
+    <div class="stats">
+        <div class="card">
+            <h2>{{ books|length }}</h2>
+            <p>Book Titles</p>
+        </div>
+
+        <div class="card">
+            <h2>{{ total_copies }}</h2>
+            <p>Total Copies</p>
+        </div>
+
+        <div class="card">
+            <h2>{{ borrowed_books|length }}</h2>
+            <p>Borrowed Copies</p>
+        </div>
+
+        <div class="card">
+            <h2>{{ available_books }}</h2>
+            <p>Available Copies</p>
+        </div>
+    </div>
+
+    <div class="section" id="books">
+        <h2>Books List</h2>
+
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Type</th>
+                <th>Copies</th>
+                <th>Available</th>
+            </tr>
+
+            {% for book in books %}
+            <tr>
+                <td>{{ book.id }}</td>
+                <td>{{ book.title }}</td>
+                <td>{{ book.author }}</td>
+                <td>{{ book.type }}</td>
+                <td>{{ book.copies }}</td>
+                <td>{{ book.available }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <div class="form-box">
+            <h3>Add New Book</h3>
+
+            <form action="/add_book" method="POST">
+                <input type="text" name="book_id" placeholder="Book ID" required>
+                <input type="text" name="title" placeholder="Book Title" required>
+                <input type="text" name="author" placeholder="Author Name" required>
+
+                <select name="book_type">
+                    <option>Physical</option>
+                    <option>E-Book</option>
+                </select>
+
+                <input type="number" name="copies" placeholder="Copies" required>
+
+                <button type="submit">Add Book</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="section" id="members">
+        <h2>Members List</h2>
+
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Type</th>
+            </tr>
+
+            {% for member in members %}
+            <tr>
+                <td>{{ member.id }}</td>
+                <td>{{ member.name }}</td>
+                <td>{{ member.type }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <div class="form-box">
+            <h3>Add New Member</h3>
+
+            <form action="/add_member" method="POST">
+                <input type="text" name="member_id" placeholder="Member ID" required>
+                <input type="text" name="member_name" placeholder="Member Name" required>
+
+                <select name="member_type">
+                    <option>Student</option>
+                    <option>Senior</option>
+                    <option>Staff</option>
+                </select>
+
+                <button type="submit">Add Member</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="section" id="borrow">
+        <h2>Borrow Book</h2>
+
+        <div class="form-box">
+            <h3>Borrow Operation</h3>
+
+            <form action="/borrow_book" method="POST">
+                <select name="member_id" required>
+                    <option value="">Select Member</option>
+
+                    {% for member in members %}
+                    <option value="{{ member.id }}">
+                        {{ member.id }} - {{ member.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <select name="book_id" required>
+                    <option value="">Select Book</option>
+
+                    {% for book in books %}
+                    <option value="{{ book.id }}">
+                        {{ book.id }} - {{ book.title }} | Available: {{ book.available }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit">Borrow Book</button>
+            </form>
+        </div>
+
+        <h2>Borrowed Books List</h2>
+
+        <table>
+            <tr>
+                <th>Member ID</th>
+                <th>Member Name</th>
+                <th>Book ID</th>
+                <th>Book Title</th>
+                <th>Action</th>
+            </tr>
+
+            {% for record in borrowed_books %}
+            <tr>
+                <td>{{ record.member_id }}</td>
+                <td>{{ record.member_name }}</td>
+                <td>{{ record.book_id }}</td>
+                <td>{{ record.book_title }}</td>
+                <td>
+                    <form action="/return_book" method="POST" class="return-form">
+                        <input type="hidden" name="record_index" value="{{ loop.index0 }}">
+                        <button type="submit" class="return-btn">Return</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+</body>
+</html>
